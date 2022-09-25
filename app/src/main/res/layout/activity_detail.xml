@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.mainActivity.MainActivity">
+    tools:context=".ui.detailActivity.DetailActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvRAM"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imgRAM"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:transitionName="fade"/>
+        android:layout_height="300dp"
+        android:background="@color/black"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

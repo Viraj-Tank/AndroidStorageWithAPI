@@ -49,5 +49,5 @@ class MainViewModel @Inject constructor(
             }
             override fun getRefreshKey(state: PagingState<Int, RAMResponse.Result>): Int? = null
         }
-    }.liveData
+    }.flow
 }
