@@ -33,7 +33,12 @@ class MainActivity : AppCompatActivity() {
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this@MainActivity, imageView, "fade"
             )
-            startActivity(Intent(this@MainActivity, DetailActivity::class.java), options.toBundle())
+            startActivity(
+                Intent(this@MainActivity, DetailActivity::class.java).putExtra(
+                    "imageUrl",
+                    imageUrl
+                ), options.toBundle()
+            )
         }
         binding.rvRAM.apply {
             layoutManager = GridLayoutManager(this@MainActivity, 3)

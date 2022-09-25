@@ -17,8 +17,8 @@ class RAMAdapter(
 
     override fun onBindViewHolder(holder: MyView, position: Int) {
         val model: RAMResponse.Result? = getItem(position)
-//        Glide.with(holder.binding.root.context).load(model?.image)
-//            .into(holder.binding.imgRAM)
+        Glide.with(holder.binding.root.context).load(model?.image)
+            .into(holder.binding.imgRAM)
         holder.binding.imgRAM.setOnClickListener {
             onItemClick(model?.image.toString(),it)
         }
