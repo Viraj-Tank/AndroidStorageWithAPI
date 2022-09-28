@@ -7,13 +7,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.transition.Fade
-import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.novuspax.androidstoragewithapi.databinding.ActivityDetailBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,11 +23,18 @@ import java.io.File
 class DetailActivity : AppCompatActivity(), View.OnClickListener {
 
     private val TAG = "DetailActivity"
+    private var imageUrl = ""
+    var myDownloadId: Long = 0
     private val binding by lazy {
         ActivityDetailBinding.inflate(layoutInflater)
     }
-    private var imageUrl = ""
-    var myDownloadId: Long = 0
+    private val requestStoragePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        if (it) {
+            saveFileUsingDownloadManager()
+        } else {
+            Toast.makeText(this@DetailActivity, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,20 +69,31 @@ class DetailActivity : AppCompatActivity(), View.OnClickListener {
                 saveToPrivateFilesFolder()
             }
             binding.btnDownloadManager -> {
-                saveFileUsingDownloadManager()
+                requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }
     }
 
     private fun saveFileUsingDownloadManager() {
-        val imageToBeDownload = DownloadManager.Request(Uri.parse(imageUrl))
-            .setTitle(imageUrl.substring(0..10))
-            .setDescription("Downloading Image...")
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setAllowedOverMetered(true)
+        try {
+            val imageToBeDownload = DownloadManager.Request(Uri.parse(imageUrl))
+                .setTitle(imageUrl.substring(0..10))
+                .setDescription("Downloading Image...")
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE or DownloadManager.Request.NETWORK_WIFI)
+                .setMimeType("image/jpeg")
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, File.separator + "image.jpeg")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setAllowedOverMetered(true)
 
-        val downloadManager = getSystemService(Service.DOWNLOAD_SERVICE) as DownloadManager
-        myDownloadId = downloadManager.enqueue(imageToBeDownload)
+            val downloadManager = getSystemService(Service.DOWNLOAD_SERVICE) as DownloadManager
+
+            /***
+             *  using broadcast to fire notification when download completes
+             */
+            myDownloadId = downloadManager.enqueue(imageToBeDownload)
+        } catch (e: Exception) {
+            Toast.makeText(this@DetailActivity, "something went wrong", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun saveToPrivateCacheFolder() {
